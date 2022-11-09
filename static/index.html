@@ -67,13 +67,15 @@
     function drawCircle(context, entity) {
         with (context) {
             beginPath();
-            lineWidth = 3;
+            lineWidth = 1;
             var x = entity["x"];
             var y = entity["y"];
+            var rad = entity["radius"];
             //moveTo(x,y);
             fillStyle = entity["colour"];
             strokeStyle = fillStyle;
-            arc(x, y, (entity["radius"]) ? entity["radius"] : 30, 0, 2.0 * Math.PI, false);
+            arc(x, y, rad, 0, 2.0 * Math.PI, false);
+            fill();
             stroke();
         }
     }
@@ -158,7 +160,7 @@
 
     function addEntityWithoutName(data) {
         //var name = "X"+Math.floor((Math.random()*100)+1);
-        var name = "X" + (counter++) % 100;
+        var name = "X" + (counter++) % 500;
         addEntity(name, data);
     }
 
@@ -291,7 +293,7 @@
     }
 
     // 30 frames per second
-    setInterval(update, 1000 / 30.0);
+    setInterval(update, 1000 / 60.0);
 
 
 
