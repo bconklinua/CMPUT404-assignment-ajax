@@ -35,7 +35,11 @@
 
     function sendJSONXMLHTTPRequest(url, objects, callback) {
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', url, true);
+        if (objects == null) {
+            xhr.open('GET', url, true);
+        } else {
+            xhr.open('POST', url, true);
+        }
         xhr.setRequestHeader('Content-type', 'application/json');
         xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
         xhr.onreadystatechange = function () {
@@ -273,7 +277,6 @@
 
     function getWorld(resp) {
         var data = resp;
-        console.log("world");
         //console.log(resp);
         for (var w in data) {
             world[w] = data[w];
