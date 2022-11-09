@@ -24,8 +24,10 @@
 import flask
 from flask import Flask, request
 import json
+
 app = Flask(__name__)
 app.debug = True
+
 
 # An example world
 # {
@@ -35,10 +37,11 @@ app.debug = True
 
 class World:
     def __init__(self):
+        self.space = None
         self.clear()
-        
+
     def update(self, entity, key, value):
-        entry = self.space.get(entity,dict())
+        entry = self.space.get(entity, dict())
         entry[key] = value
         self.space[entity] = entry
 
@@ -49,21 +52,23 @@ class World:
         self.space = dict()
 
     def get(self, entity):
-        return self.space.get(entity,dict())
-    
+        return self.space.get(entity, dict())
+
     def world(self):
         return self.space
+
 
 # you can test your webservice from the commandline
 # curl -v   -H "Content-Type: application/json" -X PUT http://127.0.0.1:5000/entity/X -d '{"x":1,"y":1}' 
 
-myWorld = World()          
+myWorld = World()
+
 
 # I give this to you, this is how you get the raw body/data portion of a post in flask
 # this should come with flask but whatever, it's not my project.
 def flask_post_json():
-    '''Ah the joys of frameworks! They do so much work for you
-       that they get in the way of sane operation!'''
+    """Ah the joys of frameworks! They do so much work for you
+       that they get in the way of sane operation!"""
     if (request.json != None):
         return request.json
     elif (request.data != None and request.data.decode("utf8") != u''):
@@ -71,30 +76,42 @@ def flask_post_json():
     else:
         return json.loads(request.form.keys()[0])
 
-@app.route("/")
+
+@app.route("/", methods=['GET'])
 def hello():
-    '''Return something coherent here.. perhaps redirect to /static/index.html '''
-    return None
+    """Return something coherent here.. perhaps redirect to /static/index.html """
+    return flask.redirect('static/index.html', code=200)
 
-@app.route("/entity/<entity>", methods=['POST','PUT'])
+
+@app.route("/entity/<entity>", methods=['POST', 'PUT'])
 def update(entity):
-    '''update the entities via this interface'''
-    return None
+    req = flask_post_json()
+    for key in req:
+        myWorld.update(entity, key, req[key])
+    response = myWorld.get(entity)
+    return response
 
-@app.route("/world", methods=['POST','GET'])    
+
+@app.route("/world", methods=['POST', 'GET'])
 def world():
-    '''you should probably return the world here'''
-    return None
+    """you should probably return the world here"""
+    response = flask.jsonify(myWorld.world())
+    return response
 
-@app.route("/entity/<entity>")    
+
+@app.route("/entity/<entity>", methods=['GET'])
 def get_entity(entity):
-    '''This is the GET version of the entity interface, return a representation of the entity'''
-    return None
+    """This is the GET version of the entity interface, return a representation of the entity"""
+    response = flask.jsonify(myWorld.get(entity))
+    return response
 
-@app.route("/clear", methods=['POST','GET'])
+
+@app.route("/clear", methods=['POST', 'GET'])
 def clear():
-    '''Clear the world out!'''
-    return None
+    myWorld.clear()
+    response = flask.jsonify(myWorld.world())
+    return response
+
 
 if __name__ == "__main__":
     app.run()
